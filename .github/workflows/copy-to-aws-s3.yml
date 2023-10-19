@@ -1,0 +1,29 @@
+name: "📠 Copy to Develop S3 bucket"
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: "${{ secrets.AWS_REGION }}"
+  AWS_ACCOUNT_ID: "${{ secrets.AWS_ACCOUNT_ID }}"
+  AWS_BUCKET_NAME: "${{ secrets.AWS_BUCKET_NAME }}"
+
+jobs:
+  deploy:
+    name: Upload to Amazon S3
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      - name: Configure AWS credentials for account
+        uses: aws-actions/configure-aws-credentials@v4.0.1
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github/AWSGitHubAction
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Copy files to the test website with the AWS CLI
+        run: |
+          aws s3 cp * s3://${{ env.AWS_BUCKET_NAME }}
