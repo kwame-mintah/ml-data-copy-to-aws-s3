@@ -26,4 +26,4 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Copy files to the test website with the AWS CLI
         run: |
-          aws s3 cp * s3://${{ env.AWS_BUCKET_NAME }}
+          aws s3 cp data s3://${{ env.AWS_BUCKET_NAME }}/data --recursive --exclude "*.md" --include "*.csv"
